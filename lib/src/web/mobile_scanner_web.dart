@@ -4,7 +4,7 @@ import 'dart:ui_web' as ui_web;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:mobile_scanner/src/enums/barcode_format.dart';
+import 'package:mobile_scanner/src/enums/barcode_format.dart' as barCodeFormat;
 import 'package:mobile_scanner/src/enums/camera_facing.dart';
 import 'package:mobile_scanner/src/enums/mobile_scanner_error_code.dart';
 import 'package:mobile_scanner/src/enums/torch_state.dart';
@@ -16,7 +16,6 @@ import 'package:mobile_scanner/src/objects/start_options.dart';
 import 'package:mobile_scanner/src/web/barcode_reader.dart';
 import 'package:mobile_scanner/src/web/media_track_constraints_delegate.dart';
 import 'package:mobile_scanner/src/web/media_track_extension.dart';
-import 'package:mobile_scanner/src/web/zxing/zxing_barcode_reader.dart';
 import 'package:web/web.dart';
 
 /// A web implementation of the MobileScannerPlatform of the MobileScanner plugin.
@@ -106,8 +105,7 @@ class MobileScannerWeb extends MobileScannerPlatform {
     _divElement = HTMLDivElement()
       ..style.objectFit = 'cover'
       ..style.height = '100%'
-      ..style.width = '100%'
-      ..append(videoElement);
+      ..style.width = '100%';
 
     ui_web.platformViewRegistry.registerViewFactory(
       _getViewType(textureId),
@@ -142,14 +140,13 @@ class MobileScannerWeb extends MobileScannerPlatform {
       return;
     }
 
-    final MediaStreamTrack videoTrack =
-        videoStream.getVideoTracks().toDart.first;
+    const MediaStreamTrack? videoTrack = null;
 
     // On MacOS, even though the facing mode is supported, it is not reported.
     // Use the label for FaceTime cameras to detect the user facing webcam.
-    if (videoTrack.label.contains('FaceTime')) {
-      videoElement.style.transform = 'scaleX(-1)';
-    }
+    // if (videoTrack.label.contains('FaceTime')) {
+    //   videoElement.style.transform = 'scaleX(-1)';
+    // }
   }
 
   /// Prepare a [MediaStream] for the video output.
@@ -161,7 +158,7 @@ class MobileScannerWeb extends MobileScannerPlatform {
   Future<MediaStream> _prepareVideoStream(
     CameraFacing cameraDirection,
   ) async {
-    if (window.navigator.mediaDevices.isUndefinedOrNull) {
+    // if (window.navigator.mediaDevices.isUndefinedOrNull) {
       throw const MobileScannerException(
         errorCode: MobileScannerErrorCode.unsupported,
         errorDetails: MobileScannerErrorDetails(
@@ -169,60 +166,60 @@ class MobileScannerWeb extends MobileScannerPlatform {
               'This browser does not support displaying video from the camera.',
         ),
       );
-    }
+    // }
 
-    final MediaTrackSupportedConstraints capabilities =
-        window.navigator.mediaDevices.getSupportedConstraints();
-
-    final MediaStreamConstraints constraints;
-
-    if (capabilities.isUndefinedOrNull || !capabilities.facingMode) {
-      constraints = MediaStreamConstraints(video: true.toJS);
-    } else {
-      final String facingMode = _settingsDelegate.getFacingMode(
-        cameraDirection,
-      );
-
-      constraints = MediaStreamConstraints(
-        video: MediaTrackConstraintSet(
-          facingMode: facingMode.toJS,
-        ),
-      );
-    }
-
-    try {
-      // Retrieving the media devices requests the camera permission.
-      final MediaStream videoStream =
-          await window.navigator.mediaDevices.getUserMedia(constraints).toDart;
-
-      return videoStream;
-    } on DOMException catch (error, stackTrace) {
-      final String errorMessage = error.toString();
-
-      MobileScannerErrorCode errorCode = MobileScannerErrorCode.genericError;
-
-      // Handle both unsupported and permission errors from the web.
-      if (errorMessage.contains('NotFoundError') ||
-          errorMessage.contains('NotSupportedError')) {
-        errorCode = MobileScannerErrorCode.unsupported;
-      } else if (errorMessage.contains('NotAllowedError')) {
-        errorCode = MobileScannerErrorCode.permissionDenied;
-      }
-
-      throw MobileScannerException(
-        errorCode: errorCode,
-        errorDetails: MobileScannerErrorDetails(
-          message: errorMessage,
-          details: stackTrace.toString(),
-        ),
-      );
-    }
+    // final MediaTrackSupportedConstraints capabilities =
+    //     window.navigator.mediaDevices.getSupportedConstraints();
+    //
+    // final MediaStreamConstraints constraints;
+    //
+    // if (capabilities.isUndefinedOrNull || !capabilities.facingMode) {
+    //   constraints = MediaStreamConstraints(video: true.toJS);
+    // } else {
+    //   final String facingMode = _settingsDelegate.getFacingMode(
+    //     cameraDirection,
+    //   );
+    //
+    //   constraints = MediaStreamConstraints(
+    //     video: MediaTrackConstraintSet(
+    //       facingMode: facingMode.toJS,
+    //     ),
+    //   );
+    // }
+    //
+    // try {
+    //   // Retrieving the media devices requests the camera permission.
+    //   final MediaStream videoStream =
+    //       await window.navigator.mediaDevices.getUserMedia(constraints).toDart;
+    //
+    //   return videoStream;
+    // } on DOMException catch (error, stackTrace) {
+    //   final String errorMessage = error.toString();
+    //
+    //   MobileScannerErrorCode errorCode = MobileScannerErrorCode.genericError;
+    //
+    //   // Handle both unsupported and permission errors from the web.
+    //   if (errorMessage.contains('NotFoundError') ||
+    //       errorMessage.contains('NotSupportedError')) {
+    //     errorCode = MobileScannerErrorCode.unsupported;
+    //   } else if (errorMessage.contains('NotAllowedError')) {
+    //     errorCode = MobileScannerErrorCode.permissionDenied;
+    //   }
+    //
+    //   throw MobileScannerException(
+    //     errorCode: errorCode,
+    //     errorDetails: MobileScannerErrorDetails(
+    //       message: errorMessage,
+    //       details: stackTrace.toString(),
+    //     ),
+    //   );
+    // }
   }
 
   @override
   Future<BarcodeCapture?> analyzeImage(
     String path, {
-    List<BarcodeFormat> formats = const <BarcodeFormat>[],
+    List<barCodeFormat.BarcodeFormat> formats = const <barCodeFormat.BarcodeFormat>[],
   }) {
     throw UnsupportedError('analyzeImage() is not supported on the web.');
   }
@@ -290,7 +287,7 @@ class MobileScannerWeb extends MobileScannerPlatform {
       await stop();
     }
 
-    _barcodeReader = ZXingBarcodeReader();
+    // _barcodeReader = ZXingBarcodeReader();
 
     await _barcodeReader?.maybeLoadLibrary(
       alternateScriptUrl: _alternateScriptUrl,

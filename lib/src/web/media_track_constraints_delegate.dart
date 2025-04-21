@@ -36,9 +36,9 @@ final class MediaTrackConstraintsDelegate {
 
   /// Get the settings for the given [mediaStream].
   MediaTrackSettings? getSettings(MediaStream? mediaStream) {
-    final List<MediaStreamTrack>? tracks = mediaStream?.getVideoTracks().toDart;
+    final List<MediaStreamTrack> tracks = [];
 
-    if (tracks == null || tracks.isEmpty) {
+    if (tracks.isEmpty) {
       return null;
     }
 
