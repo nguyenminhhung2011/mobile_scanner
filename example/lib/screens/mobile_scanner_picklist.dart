@@ -76,14 +76,14 @@ class _MobileScannerPicklistState extends State<MobileScannerPicklist> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
-        // Reset the page orientation to the system default values, when this
-        // page is popped
-        if (!didPop) {
-          return;
-        }
-        SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
-      },
+      // onPopInvokedWithResult: (didPop, result) {
+      //   // Reset the page orientation to the system default values, when this
+      //   // page is popped
+      //   if (!didPop) {
+      //     return;
+      //   }
+      //   SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
+      // },
       child: Scaffold(
         appBar: AppBar(title: const Text('Mobile Scanner with Crosshair')),
         backgroundColor: Colors.black,
