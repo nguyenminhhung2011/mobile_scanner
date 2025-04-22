@@ -40,7 +40,7 @@ the conversion is done into these formats.
 More about each format: https://www.fourcc.org/yuv.php
 */
 
-@Retention(AnnotationRetention.SOURCE)
+@kotlin.annotation.Retention(AnnotationRetention.SOURCE)
 @IntDef(ImageFormat.NV21, ImageFormat.YUV_420_888)
 annotation class YuvType
 
@@ -181,7 +181,9 @@ class YuvByteBuffer(image: Image, dstBuffer: ByteBuffer? = null) {
         }
     }
 
-    private class PlaneWrapper(val width: Int, val height: Int, plane: Image.Plane) {
+    private class PlaneWrapper(width: Int, height: Int, plane: Image.Plane) {
+        val width = width
+        val height = height
         val buffer: ByteBuffer = plane.buffer
         val rowStride = plane.rowStride
         val pixelStride = plane.pixelStride

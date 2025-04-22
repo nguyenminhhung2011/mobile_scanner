@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import dev.steenbakker.mobile_scanner.objects.MobileScannerErrorCodes
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 
 /**
@@ -13,6 +12,11 @@ import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
  */
 class MobileScannerPermissions {
     companion object {
+        const val CAMERA_ACCESS_DENIED = "CameraAccessDenied"
+        const val CAMERA_ACCESS_DENIED_MESSAGE = "Camera access permission was denied."
+        const val CAMERA_PERMISSIONS_REQUEST_ONGOING = "CameraPermissionsRequestOngoing"
+        const val CAMERA_PERMISSIONS_REQUEST_ONGOING_MESSAGE = "Another request is ongoing and multiple requests cannot be handled at once."
+
         /**
          * When the application's activity is [androidx.fragment.app.FragmentActivity], requestCode can only use the lower 16 bits.
          * @see androidx.fragment.app.FragmentActivity.validateRequestPermissionsRequestCode
@@ -21,7 +25,7 @@ class MobileScannerPermissions {
     }
 
     interface ResultCallback {
-        fun onResult(errorCode: String?)
+        fun onResult(errorCode: String?, errorDescription: String?)
     }
 
     private var listener: RequestPermissionsResultListener? = null
@@ -49,13 +53,14 @@ class MobileScannerPermissions {
                           addPermissionListener: (RequestPermissionsResultListener) -> Unit,
                           callback: ResultCallback) {
         if (ongoing) {
-            callback.onResult(MobileScannerErrorCodes.CAMERA_PERMISSIONS_REQUEST_ONGOING)
+            callback.onResult(
+                CAMERA_PERMISSIONS_REQUEST_ONGOING, CAMERA_PERMISSIONS_REQUEST_ONGOING_MESSAGE)
             return
         }
 
         if(hasCameraPermission(activity) == 1) {
             // Permissions already exist. Call the callback with success.
-            callback.onResult(null)
+            callback.onResult(null, null)
             return
         }
 
@@ -63,10 +68,10 @@ class MobileScannerPermissions {
             // Keep track of the listener, so that it can be unregistered later.
             listener = MobileScannerPermissionsListener(
                 object: ResultCallback {
-                    override fun onResult(errorCode: String?) {
+                    override fun onResult(errorCode: String?, errorDescription: String?) {
                         ongoing = false
                         listener = null
-                        callback.onResult(errorCode)
+                        callback.onResult(errorCode, errorDescription)
                     }
                 }
             )
